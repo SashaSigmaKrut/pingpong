@@ -1,6 +1,7 @@
 from pygame import *
 from random import randint
 from time import time as timer
+from time import sleep as spat
 
 
 
@@ -9,18 +10,24 @@ mixer.music.load('backmus.mp3')
 mixer.music.play()
 stuk_sound = mixer.Sound('stuk.mp3')
 
-
+schet = 0
+schet_p1 = 0
+schet_p2 = 0
 #шрифты и надписи
 font.init()
 font1 = font.SysFont("Arial", 80)
 font2 = font.SysFont("Arial", 36)
+font3 = font.SysFont("Arial", 28)
 win_player2 = font1.render("ИГРОК 2 ТЫ ВЫИГРАЛ!", True,(200,0,0))
 win_player1 = font1.render("ИГРОК 1 ТЫ ВЫЙГРАЛ!", True, (200,0,0))
+schetchik = font2.render("Счет: "+str(schet) , True, (255,255,255))
+schetchik_p1 = font3.render("Поражения левого: "+str(schet_p1) , True, (255,255,255))
+schetchik_p2 = font3.render("Поражения правого: "+str(schet_p2) , True, (255,255,255))
 
 
 #нам нужны такие картинки:
 img_back = "back.jpg" # фон игры
-img_ball = "balll.jpg" # герой
+img_ball = "balll.png" # герой
 img_wall = "wall.png" # враг
 
 
@@ -81,13 +88,9 @@ speed_y = 5
 
 
 #создаём спрайты
-Player1 = Player(img_wall, 20, 50, 80, 100, 25)
-Player2 = Player(img_wall, 600,  50, 80, 100, 25)
-Ball = GameSprite(img_ball, 350, 250, 30, 30, 10)
-
-
-
-
+Player1 = Player(img_wall, 0, 100, 100, 150, 25)
+Player2 = Player(img_wall, 620, 100, 100, 150, 25)
+Ball = GameSprite(img_ball, 350, 250, 60, 60, 10)
 
 
 
@@ -111,7 +114,10 @@ while run:
             speed_y *= -1
        #обновляем фон
        window.blit(background,(0,0))
-
+       window.blit(schetchik, (300, 50))
+       window.blit(schetchik_p1,(100,400))
+       window.blit(schetchik_p2,(370,400))
+       
 
        #пишем текст на экране
        #производим движения спрайтов
@@ -130,24 +136,38 @@ while run:
 
        if sprite.collide_rect(Ball, Player1) or sprite.collide_rect(Ball, Player2):
            speed_x *= -1.1
+           speed_y *= 1.1
            stuk_sound.play()
-
-       if Ball.rect.x > win_width:
-           finish = True
-
-       if Ball.rect.x < 0:
-           finish = True
-
-       display.update()
-   #цикл срабатывает каждую 0.05 секунд
-   else:
-       window.blit(background,(0,0))
-       
+           schet += 1
+    
+       schetchik = font2.render("Счет: "+str(schet) , True, (255,255,255))   
+       schetchik_p1 = font3.render("Поражения левого: "+str(schet_p1) , True, (255,255,255))
+       schetchik_p2 = font3.render("Поражения правого: "+str(schet_p2) , True, (255,255,255))
+           
        if Ball.rect.x > win_width:
            window.blit(win_player1 ,(0,100))
+           finish = True
+           schet_p2 += 1
+           schetchik_p2 = font3.render("Поражения правого: "+str(schet_p2) , True, (255,255,255))
            #player2 lose
        if Ball.rect.x < 0:
            window.blit(win_player2,(0,100))
+           finish = True
+           schet_p1 += 1
+           schetchik_p1 = font3.render("Поражения левого: "+str(schet_p1) , True, (255,255,255))
+
            #player1 lose
+       
+       display.update()
+   #цикл срабатывает каждую 0.05 секунд
+   else:
+       spat(5)
+       finish=False
+       speed_x = 5
+       speed_y = 5
+       Ball.rect.x = win_width/2
+       Ball.rect.y = win_height/2
+       #window.blit(background,(0,0))
+       
        display.update()
    time.delay(50)
